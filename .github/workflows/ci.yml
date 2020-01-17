@@ -1,52 +1,52 @@
-on: push
+name: main
+
+on:
+  push:
+    branches: [master]
+    tags: ['*']
+  pull_request:
+    paths-ignore:
+    - 'docs/**'
+    - '**/*.rst'
+    - '**/*.md'
+    - .gitignore
+    - .travis.yml
+    - CREDITS
+    - LICENSE
 
 jobs:
-  windows-mypy-test-38-x64:
-    runs-on: windows-latest
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        name: [windows-py37-32, windows-py37-64]
+        include:
+        - name: windows-py37-32
+          python: '3.7'
+          arch: x86
+          os: windows-latest
+          toxenv: py37
+          winsdk: C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x86\bin
+        - name: windows-py37-64
+          python: '3.7'
+          arch: x64
+          os: windows-latest
+          toxenv: py37
+          winsdk: C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\bin
+
     steps:
-      -
-        name: Checkout
-        uses: actions/checkout@master
-        with:
-          repository: python/mypy
-      - run: git submodule update --init mypy/typeshed
-      - name: Setup python
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.8
-          architecture: x64
-      - run: python -m pip install -U setuptools tox==3.9.0
-      - run: python -m tox -e py38
-  windows-mypyc-test-38-x86:
-    runs-on: windows-latest
-    steps:
-      -
-        name: Checkout
-        uses: actions/checkout@master
-        with:
-          repository: python/mypy
-      - run: git submodule update --init mypy/typeshed
-      - name: Setup python
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.8
-          architecture: x86
-      - run: python -m pip install -U setuptools tox==3.9.0
-      - run: python -m tox -e py37 --notest
-      - run: python -m tox -e py38 mypyc/test/test_run.py mypyc/test/test_external.py
-  windows-mypy-typecheck:
-    runs-on: windows-latest
-    steps:
-      -
-        name: Checkout
-        uses: actions/checkout@master
-        with:
-          repository: python/mypy
-      - run: git submodule update --init mypy/typeshed
-      - name: Setup python
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.8
-          architecture: x64
-      - run: python -m pip install -U setuptools tox==3.9.0
-      - run: python -m tox -e type
+    - uses: actions/checkout@v1
+    - name: initialize submodules
+      run: git submodule update --init
+    - uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python }}
+        architecture: ${{ matrix.arch }}
+    - name: install tox
+      run: pip install --upgrade setuptools tox==3.9.0
+    - name: set winsdk path
+      run: echo "::add-path::${{ matrix.winsdk }}"
+    - name: setup tox environment
+      run: tox -e ${{ matrix.toxenv }} --notest
+    - name: test
+      run: tox -e ${{ matrix.toxenv }}
