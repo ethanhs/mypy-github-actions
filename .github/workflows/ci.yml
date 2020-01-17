@@ -30,16 +30,17 @@ jobs:
       - run: python -m pip install -U setuptools tox==3.9.0
       - run: python -m tox -e py37 --notest
       - run: python -m tox -e py38 mypyc/test/test_run.py mypyc/test/test_external.py
-  windows-mypy-type:
+  windows-mypy-typecheck:
     runs-on: windows-latest
-      steps:
-        -
-          name: Checkout
-          uses: actions/checkout@master
-          repository: https://github.com/python/mypy
-        - name: Setup python
-          uses: actions/setup-python@v1
-          with:
-            python-version: 3.8
-            architecture: x64
-        - run: python -m tox -e type
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@master
+        repository: https://github.com/python/mypy
+      - name: Setup python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+          architecture: x64
+      - run: python -m pip install -U setuptools tox==3.9.0
+      - run: python -m tox -e type
