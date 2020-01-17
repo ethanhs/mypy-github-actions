@@ -1,7 +1,7 @@
 on: push
 
 jobs:
-  windows-mypy-test-3.8-x64:
+  windows-mypy-test-38-x64:
     runs-on: windows-latest
     steps:
       -
@@ -16,7 +16,7 @@ jobs:
           architecture: x64
       - run: python -m pip install -U setuptools tox==3.9.0
       - run: python -m tox -e py38
-  windows-mypyc-test-3.8-x86:
+  windows-mypyc-test-38-x86:
     runs-on: windows-latest
     steps:
       -
