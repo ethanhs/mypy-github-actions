@@ -21,7 +21,8 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@master
-        repository: https://github.com/python/mypy
+        with:
+          repository: https://github.com/python/mypy
       - name: Setup python
         uses: actions/setup-python@v1
         with:
